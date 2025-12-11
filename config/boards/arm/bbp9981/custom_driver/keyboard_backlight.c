@@ -15,6 +15,7 @@
 #include <zmk/activity.h>
 #include <zmk/keymap.h>
 #include <zmk/events/activity_state_changed.h>
+#include <zmk/events/position_state_changed.h>
 
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
@@ -75,7 +76,6 @@ static void blink_work_handler(struct k_work *work) {
     k_work_reschedule(&blink_work, K_MSEC(interval));
 }
 
-
 static void cycle_work_handler(struct k_work *work) {
     if (prev_layer != 2) {
         set_led_brightness(0);
@@ -101,6 +101,18 @@ static void cycle_work_handler(struct k_work *work) {
     k_work_reschedule(&cycle_work, K_MSEC(CYCLE_INTERVAL_MS));
 }
 
+static bool backlight_allowed = false;
+
+static int key_listener_cb(const zmk_event_t *eh) {
+    const struct zmk_position_state_changed *ev = as_zmk_position_state_changed(eh);
+    if (ev && ev->state) {
+        backlight_allowed = true;
+    }
+    return ZMK_EV_EVENT_BUBBLE;
+}
+ZMK_LISTENER(kb_backlight_key_listener, key_listener_cb);
+ZMK_SUBSCRIPTION(kb_backlight_key_listener, zmk_position_state_changed);
+
 static void polling_work_handler(struct k_work *work) {
     bool active = (zmk_activity_get_state() == ZMK_ACTIVITY_ACTIVE);
     int current_layer = zmk_keymap_highest_layer_active();
@@ -112,6 +124,14 @@ static void polling_work_handler(struct k_work *work) {
         rgb_on = true;
     }
 #endif
+
+    /* Reset allowed state if we went idle */
+    if (!active) {
+        backlight_allowed = false;
+    }
+
+    /* Force allowed if we detect layer change (e.g. from cache) or if we want to be safe,
+       but relies mainly on key listener. */
 
     if (current_layer != prev_layer || active != prev_active) {
         prev_layer = current_layer;
@@ -125,22 +145,27 @@ static void polling_work_handler(struct k_work *work) {
 
         switch (current_layer) {
         case 0:
- 
-            uint8_t brt = (rgb_on && active) ? ug_brt : 0;
+            /* Only turn on if active AND a key was pressed to authorize it */
+            uint8_t brt = (rgb_on && active && backlight_allowed) ? ug_brt : 0;
             set_led_brightness(brt);
             break;
 
         case 1:
+            /* Layers 1/2/3 usually imply keys were pressed to get there, so we assume valid */
+            /* But if we layer-lock? Then we might want logic.
+               However, usually you hold a key to access layers.
+               If layer is active, backlight_allowed should essentially be true because you pressed
+               a key. */
 
             blink_start_high = !rgb_on ? true : false;
             blink_on = blink_start_high;
-            set_led_brightness(blink_on ? BRT_BLINK_HIGH : BRT_BLINK_LOW);
+            /* Allow blink if active */
+            set_led_brightness((active && blink_on) ? BRT_BLINK_HIGH : BRT_BLINK_LOW);
 
             k_work_reschedule(&blink_work, K_MSEC(BLINK_INTERVAL_MS / 2));
             break;
 
         case 2:
-
             k_work_reschedule(&cycle_work, K_MSEC(100));
             break;
 
@@ -154,6 +179,24 @@ static void polling_work_handler(struct k_work *work) {
             set_led_brightness(0);
             break;
         }
+    }
+
+    /* Continuous update for Layer 0 if brightness changes or allowed state changes?
+       The original code only updated on state change (layer or active).
+       We should probably re-evaluate brightness for Layer 0 if backlight_allowed changes.
+       But current logic only updates on prev_layer/active diff.
+
+       Let's assume we need to update if backlight_allowed changes?
+       Actually, polling runs every 100ms. If we modify 'prev_active' logic to also check allowed?
+
+       Let's stick to the structure but enforce brightness update if we are in Layer 0.
+    */
+    if (current_layer == 0 && active && backlight_allowed) {
+        /* Enforce brightness in case it was 0 before */
+        uint8_t brt = rgb_on ? ug_brt : 0;
+        set_led_brightness(brt);
+    } else if (current_layer == 0 && (!active || !backlight_allowed)) {
+        set_led_brightness(0);
     }
 
     k_work_reschedule(&polling_work, K_MSEC(100));

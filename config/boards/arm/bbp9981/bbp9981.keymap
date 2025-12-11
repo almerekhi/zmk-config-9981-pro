@@ -38,7 +38,7 @@
         td_boot_out: td_boot_out {
             compatible = "zmk,behavior-tap-dance";
             #binding-cells = <0>;
-            tapping-term-ms = <400>;           
+            tapping-term-ms = <400>;
             bindings = <&bootloader>, <&out OUT_TOG>;
         };
     };
@@ -69,7 +69,7 @@
             bindings = <&kp &kp>;
         };
     };
-    
+
     behaviors {
     sl_mo: behavior_sl_mo {
         compatible = "zmk,behavior-hold-tap";
@@ -84,8 +84,8 @@
     sk_kp: behavior_sk_kp {
         compatible = "zmk,behavior-hold-tap";
         #binding-cells = <2>;
-        flavor = "hold-preferred";      
-        tapping-term-ms = <450>;       
+        flavor = "hold-preferred";
+        tapping-term-ms = <450>;
         bindings = <&kp &sk>;          /* hold=kp, tap=sticky key */
         };
     };
@@ -96,13 +96,13 @@
         default_layer {
 
             bindings = <
-//         --------------------------------------------------------------------------------------------------------------------------         
-//         |    Shoulder Key1    |                                                                             |    Shoulder Key2    |     
+//         --------------------------------------------------------------------------------------------------------------------------
+//         |    Shoulder Key1    |                                                                             |    Shoulder Key2    |
 // |         Call key      |      Blackberry Key        |    Trackpad    |             Back Key                |             Endcall Key          |
-// |     Q      |     W    |     E    |     R    |      T      |       Y        |       U        |        I        |       O      |      P        |     
-// |     A      |     S    |     D    |     F    |      G      |       H        |       J        |        K        |       L      |      ←        |  
-// |     alt    |     Z    |     X    |     C    |      V      |       B        |       N        |        M        |       $      |    Enter      |   
-//        |         aA     |         0           |           SPACE              |         SYM         |        aA          |       
+// |     Q      |     W    |     E    |     R    |      T      |       Y        |       U        |        I        |       O      |      P        |
+// |     A      |     S    |     D    |     F    |      G      |       H        |       J        |        K        |       L      |      ←        |
+// |     alt    |     Z    |     X    |     C    |      V      |       B        |       N        |        M        |       $      |    Enter      |
+//        |         aA     |         0           |           SPACE              |         SYM         |        aA          |
 //        -----------------------------------------------------------------------------------------------------------------
 
                  &mkp LCLK                                                                                          &mkp RCLK
@@ -117,9 +117,9 @@
 
         sym_layer {
 
-            bindings = <        
+            bindings = <
                  &kp C_VOL_UP                                                                                       &kp C_VOL_DN
-    &kp PSCRN               &kp C_AC_SEARCH                     &mkp LCLK                          &kp F5                            &kp F12 
+    &kp PSCRN               &kp C_AC_SEARCH                     &mkp LCLK                          &kp F5                            &kp F12
     &kp HASH     &kp N1     &kp N2      &kp N3    &mt LBKT LPAR &mt RBKT RPAR     &kp UNDER        &kp MINUS        &kp PLUS         &kp AT
     &kp STAR     &kp N4     &kp N5      &kp N6    &kp SLASH     &kp COLON         &kp SEMI         &kp APOS         &kp DQT          &kp DEL
     &kp LSHFT    &kp N7     &kp N8      &kp N9    &kp QMARK     &kp EXCL          &kp COMMA        &kp DOT          &tdc_to_MEDIA    &kp ENTER

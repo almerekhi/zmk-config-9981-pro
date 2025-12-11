@@ -5,4 +5,3 @@
 west build -p -b bbp9981
 
 ```
-
