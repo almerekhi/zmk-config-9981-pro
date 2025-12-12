@@ -14,7 +14,7 @@
 
 / {
     model = "bbp9981";
-    compatible = "ZitaoTech,bbp9981";
+    compatible = "zitaotech,bbp9981";
 
     chosen {
         zephyr,code-partition = &code_partition;
@@ -28,7 +28,7 @@
         zmk,trackpad_led = &trackpad_led;
         zmk,backlight = &backlight;
         zmk,underglow = &led_strip;
-        zmk,studio-rpc-uart = &cdc_acm_uart; // ✅ enable ZMK Studio
+        zmk,studio-rpc-uart = &cdc_acm_uart;
     };
 
     keyboard_backlight: pwmledfo{
@@ -113,6 +113,17 @@ RC(3,0)          RC(3,2)             RC(3,4)             RC(3,6)          RC(3,8
         output-ohms = <2000000>;
         full-ohms = <2820000>;  // 2000000 + 820000
     };
+
+    trackpad_inputs {
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+    };
+    trackpad_listener: trackpad_listener {
+        compatible = "zmk,input-listener";
+        status = "disabled";
+        device = <&trackpad>;
+    };
 };
 
 &adc {
@@ -163,7 +174,7 @@ RC(3,0)          RC(3,2)             RC(3,4)             RC(3,6)          RC(3,8
 &i2c0 {
     status = "okay";
     compatible = "nordic,nrf-twim";
-    clock-frequency = <I2C_BITRATE_FAST>; 
+    clock-frequency = <I2C_BITRATE_FAST>;
     pinctrl-0 = <&i2c0_default>;
     pinctrl-1 = <&i2c0_sleep>;
     pinctrl-names = "default", "sleep";
@@ -172,20 +183,6 @@ RC(3,0)          RC(3,2)             RC(3,4)             RC(3,6)          RC(3,8
         compatible = "avago,a320";
         reg = <0x57>;
         status = "okay";
-    };
-};
-
-
-/ {
-    trackpad_inputs {
-        #address-cells = <1>;
-        #size-cells = <0>;
-
-    };
-    trackpad_listener: trackpad_listener {
-        compatible = "zmk,input-listener";
-        status = "disabled";
-        device = <&trackpad>;
     };
 };
 
@@ -225,13 +222,13 @@ RC(3,0)          RC(3,2)             RC(3,4)             RC(3,6)          RC(3,8
 };
 
 &bbp9981_layout{
-	transform = <&default_transform>;
-	kscan = <&kscan0>;
-}; 
+    transform = <&default_transform>;
+    kscan = <&kscan0>;
+};
 
-zephyr_udc0: &usbd { 
-    compatible = "nordic,nrf-usbd"; 
-    status = "okay"; 
+zephyr_udc0: &usbd {
+    compatible = "nordic,nrf-usbd";
+    status = "okay";
 };
 
 &flash0 {

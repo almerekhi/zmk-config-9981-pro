@@ -39,8 +39,8 @@ static const struct device *const led_dev = DEVICE_DT_GET(DT_CHOSEN(zmk_trackpad
 #define POLLING_INTERVAL_MS 5
 #define AUTO_OFF_DELAY_MS 5000
 
-#define FLASH_ON_MS 100   
-#define FLASH_PERIOD 1000 
+#define FLASH_ON_MS 100
+#define FLASH_PERIOD 1000
 
 static struct k_work_delayable polling_work;
 static struct k_work_delayable animation_work;
@@ -58,7 +58,7 @@ static bool manual_override = false;
 static bool keyboard_active = false;
 
 static bool usb_flash_state = false;
-static bool usb_mode = false;       
+static bool usb_mode = false;
 
 static void set_led_brightness(uint8_t level) {
     if (!device_is_ready(led_dev)) {
