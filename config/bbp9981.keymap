@@ -1,4 +1,4 @@
-/* P9981 Arabic - ZMK Config Edition */
+/* P9981 Pro - Arabic "Double-Tap" Edition */
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/bt.h>
@@ -7,26 +7,42 @@
 
 / {
     behaviors {
+        /* * السحر هنا: ميزة Tap Dance لزر الدولار 
+         * - ضغطة واحدة: يكتب $
+         * - ضغطتان: يفعل وضع العربي (Toggle)
+         */
+        td_dol: tap_dance_dollar {
+            compatible = "zmk,behavior-tap-dance";
+            label = "TAP_DANCE_DOLLAR";
+            #binding-cells = <0>;
+            tapping-term-ms = <300>; /* سرعة النقر المزدوج */
+            bindings = <&kp DLLR>, <&tog ARABIC>;
+        };
+
+        /* تعريفات الحروف العربية (ضغطة سريعة / مطولة) */
         ar_d: ar_d { compatible = "zmk,behavior-hold-tap"; label = "AR_D"; #binding-cells = <2>; tapping-term-ms = <200>; quick-tap-ms = <0>; flavor = "tap-preferred"; bindings = <&kp>, <&kp>; };
         ar_j: ar_j { compatible = "zmk,behavior-hold-tap"; label = "AR_J"; #binding-cells = <2>; tapping-term-ms = <200>; quick-tap-ms = <0>; flavor = "tap-preferred"; bindings = <&kp>, <&kp>; };
         ar_v: ar_v { compatible = "zmk,behavior-hold-tap"; label = "AR_V"; #binding-cells = <2>; tapping-term-ms = <200>; quick-tap-ms = <0>; flavor = "tap-preferred"; bindings = <&kp>, <&kp>; };
         ar_dol: ar_dol { compatible = "zmk,behavior-hold-tap"; label = "AR_DOL"; #binding-cells = <2>; tapping-term-ms = <200>; quick-tap-ms = <0>; flavor = "tap-preferred"; bindings = <&kp>, <&kp>; };
         ar_w: ar_w { compatible = "zmk,behavior-hold-tap"; label = "AR_W"; #binding-cells = <2>; tapping-term-ms = <200>; quick-tap-ms = <0>; flavor = "tap-preferred"; bindings = <&kp>, <&kp>; };
         ar_e: ar_e { compatible = "zmk,behavior-hold-tap"; label = "AR_E"; #binding-cells = <2>; tapping-term-ms = <200>; quick-tap-ms = <0>; flavor = "tap-preferred"; bindings = <&kp>, <&kp>; };
+        ar_l: ar_l { compatible = "zmk,behavior-hold-tap"; label = "AR_L"; #binding-cells = <2>; tapping-term-ms = <200>; quick-tap-ms = <0>; flavor = "tap-preferred"; bindings = <&kp>, <&kp>; };
     };
 
     keymap {
         compatible = "zmk,keymap";
         
+        /* Layer 0: English (لم نعدل أي زر رئيسي) */
         default_layer {
             bindings = <
                 &kp Q &kp W &kp E &kp R &kp T &kp Y &kp U &kp I &kp O &kp P
                 &kp A &kp S &kp D &kp F &kp G &kp H &kp J &kp K &kp L &kp BSPC
-                &mo 1 &kp SPACE &kp Z &kp X &kp C &kp V &kp B &kp N &kp M &mo 2 &kp ENTER
-                &kp LSHFT &tog ARABIC &kp LGUI &kp LALT &kp RSHFT
+                &mo 1 &kp SPACE &kp Z &kp X &kp C &kp V &kp B &kp N &kp M &td_dol &kp ENTER
+                &kp LSHFT &mo 1 &kp LGUI &kp LALT &kp RSHFT
             >;
         };
 
+        /* Layer 1: Symbols */
         sym_layer {
             bindings = <
                 &kp N1 &kp N2 &kp N3 &kp N4 &kp N5 &kp N6 &kp N7 &kp N8 &kp N9 &kp N0
@@ -36,6 +52,7 @@
             >;
         };
 
+        /* Layer 2: Functions */
         func_layer {
             bindings = <
                 &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4 &trans &trans &trans &trans &bootloader
@@ -45,14 +62,21 @@
             >;
         };
 
+        /* Layer 3: ARABIC (يتم الدخول له بضغط $ مرتين) */
         arabic_layer {
             bindings = <
+                /* الصف الأول: Q=ض, W=ص(و), E=ث(ذ), R=ق, T=ف, Y=غ, U=ع, I=هـ, O=خ, P=ح */
                 &kp Q        &ar_w COMMA W &ar_e GRAVE E &kp R      &kp T      &kp Y      &kp U      &kp I      &kp O      &kp P
-                &kp A        &kp S         &ar_d RBKT D  &kp F      &kp G      &kp H      &ar_j LBKT J &kp K    &kp L      &kp SEMI
-                &kp SPACE    &kp SPACE     &kp Z         &kp X      &kp C      &ar_v DOT V &kp B     &kp N      &kp M      &ar_dol FSLH APOS &kp RET
-                &kp LSHFT    &tog ARABIC   &kp LGUI      &kp LALT   &kp RSHFT
+                
+                /* الصف الثاني: A=ش, S=س, D=ي(د), F=ب, G=ل, H=ا, J=ت(ج), K=ن, L=م(ك), Backspace=مسح */
+                &kp A        &kp S         &ar_d RBKT D  &kp F      &kp G      &kp H      &ar_j LBKT J &kp K    &ar_l SEMI L &kp BSPC
+                
+                /* الصف الثالث: تم وضع زر الخروج (Toggle) مكان الدولار أيضاً */
+                &kp SPACE    &kp SPACE     &kp Z         &kp X      &kp C      &ar_v DOT V &kp B     &kp N      &kp M      &td_dol &kp RET
+                
+                /* الصف الرابع */
+                &kp LSHFT    &trans        &kp LGUI      &kp LALT   &kp RSHFT
             >;
         };
     };
-}; 
-
+};
